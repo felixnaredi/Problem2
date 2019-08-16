@@ -13,8 +13,9 @@ import simd
 fileprivate func makePipeline(device: MTLDevice) -> MTLRenderPipelineState? {
   let pipelineDescriptor = MTLRenderPipelineDescriptor()
   let library = device.makeDefaultLibrary()
-  pipelineDescriptor.vertexFunction = library?.makeFunction(name: "vertexShader")
-  pipelineDescriptor.fragmentFunction = library?.makeFunction(name: "samplingShader")
+  pipelineDescriptor.vertexFunction = library?.makeFunction(name: "TextureRenderer__vertex_shader")
+  pipelineDescriptor.fragmentFunction = library?.makeFunction(
+    name: "TextureRenderer__fragment_shader")
   pipelineDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
   return try? device.makeRenderPipelineState(descriptor: pipelineDescriptor)
 }
@@ -60,3 +61,4 @@ class TextureRenderer: NSObject, MTKViewDelegate {
   }
 
 }
+
