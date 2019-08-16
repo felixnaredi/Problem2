@@ -10,28 +10,34 @@ import Foundation
 import MetalKit
 import simd
 
+fileprivate func makePipeline(device: MTLDevice) -> MTLRenderPipelineState? {
+  let pipelineDescriptor = MTLRenderPipelineDescriptor()
+  let library = device.makeDefaultLibrary()
+  pipelineDescriptor.vertexFunction = library?.makeFunction(name: "vertexShader")
+  pipelineDescriptor.fragmentFunction = library?.makeFunction(name: "samplingShader")
+  pipelineDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
+  return try? device.makeRenderPipelineState(descriptor: pipelineDescriptor)
+}
+
 class TextureRenderer: NSObject, MTKViewDelegate {
   var textureSource: TextureSource?
   private let commandQueue: MTLCommandQueue!
   private let pipeline: MTLRenderPipelineState!
 
+  init?(device: MTLDevice) {
+    guard let commandQueue = device.makeCommandQueue(), let pipeline = makePipeline(device: device)
+    else { return nil }
+
+    self.commandQueue = commandQueue
+    self.pipeline = pipeline
+
+    super.init()
+  }
+
   override init() {
-    guard let device = MTLCreateSystemDefaultDevice() else {
-      commandQueue = nil
-      pipeline = nil
-      super.init()
-      return
-    }
-
-    commandQueue = device.makeCommandQueue()!
-
-    let pipelineDescriptor = MTLRenderPipelineDescriptor()
-    let library = device.makeDefaultLibrary()!
-    pipelineDescriptor.vertexFunction = library.makeFunction(name: "vertexShader")!
-    pipelineDescriptor.fragmentFunction = library.makeFunction(name: "samplingShader")!
-    pipelineDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
-    try! pipeline = device.makeRenderPipelineState(descriptor: pipelineDescriptor)
-
+    let device = MTLCreateSystemDefaultDevice()!
+    self.commandQueue = device.makeCommandQueue()
+    self.pipeline = makePipeline(device: device)
     super.init()
   }
 

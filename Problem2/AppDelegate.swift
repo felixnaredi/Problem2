@@ -15,32 +15,25 @@ class AppDelegate: NSObject, NSApplicationDelegate {
   @IBOutlet weak var window: NSWindow!
   @IBOutlet weak var textureView: MTKView!
 
-  let renderer = TextureRenderer()
+  var renderer: TextureRenderer?
 
   func applicationDidFinishLaunching(_ aNotification: Notification) {
     let device = MTLCreateSystemDefaultDevice()!
 
+    renderer = TextureRenderer(device: device)
+
     textureView.delegate = renderer
     textureView.device = device
 
-    // A simple spiel altering between colors of the displayed texture.
     Thread(block: {
-      let rotator = simd_float2x2(
-        [cos(Float.pi / 180.0), -sin(Float.pi / 180.0)],
-        [sin(Float.pi / 180.0), cos(Float.pi / 180.0)])
-      let greenRot = simd_float2x2(
-        [cos(Float.pi / 1.5), -sin(Float.pi / 1.5)],
-        [sin(Float.pi / 1.5), cos(Float.pi / 1.5)])
-      let blueRot = simd_float2x2(
-        [cos(Float.pi / -1.5), -sin(Float.pi / -1.5)],
-        [sin(Float.pi / -1.5), cos(Float.pi / -1.5)])
-
-      for vector in sequence(first: simd_float2(1, 0), next: { $0 * rotator }) {
-        self.renderer.textureSource = OneColorTexture(
-          device: device, red: max(vector.x, 0), green: max((vector * greenRot).x, 0),
-          blue: max((vector * blueRot).x, 0), alpha: 1.0)
-
-        Thread.sleep(forTimeInterval: 0.16)
+      for permutation in sequence(first: [0, 1, 2, 3, 4, 5], next: { $0.map({ ($0 + 5) % 6 }) }) {
+        self.renderer?.textureSource = HorizontalSplitTexture(
+          device: device,
+          colors:
+            permutation.map({
+            [[0, 0, 1, 1], [0, 1, 1, 1], [0, 1, 0, 1], [1, 1, 0, 1], [1, 0, 0, 1], [1, 0, 1, 1]][$0]
+          }))
+        Thread.sleep(forTimeInterval: 0.128)
       }
     }).start()
   }
