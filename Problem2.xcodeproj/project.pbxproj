@@ -10,7 +10,23 @@
 		0A5E5B2C2302A7E3006836DB /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A5E5B2B2302A7E3006836DB /* AppDelegate.swift */; };
 		0A5E5B2E2302A7E5006836DB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0A5E5B2D2302A7E5006836DB /* Assets.xcassets */; };
 		0A5E5B312302A7E5006836DB /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0A5E5B2F2302A7E5006836DB /* MainMenu.xib */; };
+		0A5E5B442302C9C8006836DB /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A5E5B432302C9C8006836DB /* main.swift */; };
+		0A5E5B4923059EC9006836DB /* TextureSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A5E5B4823059EC9006836DB /* TextureSource.swift */; };
+		0A5E5B4B2305A9C6006836DB /* TextureRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A5E5B4A2305A9C6006836DB /* TextureRenderer.swift */; };
+		0A5E5B4D2305E449006836DB /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 0A5E5B4C2305E449006836DB /* Shaders.metal */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		0A5E5B3F2302C9C8006836DB /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		0A5E5B282302A7E3006836DB /* Problem2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Problem2.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -19,10 +35,22 @@
 		0A5E5B302302A7E5006836DB /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		0A5E5B322302A7E5006836DB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0A5E5B332302A7E5006836DB /* Problem2.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Problem2.entitlements; sourceTree = "<group>"; };
+		0A5E5B412302C9C8006836DB /* Windmill */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Windmill; sourceTree = BUILT_PRODUCTS_DIR; };
+		0A5E5B432302C9C8006836DB /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		0A5E5B4823059EC9006836DB /* TextureSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextureSource.swift; sourceTree = "<group>"; };
+		0A5E5B4A2305A9C6006836DB /* TextureRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextureRenderer.swift; sourceTree = "<group>"; };
+		0A5E5B4C2305E449006836DB /* Shaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Shaders.metal; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		0A5E5B252302A7E3006836DB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		0A5E5B3E2302C9C8006836DB /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -36,6 +64,7 @@
 			isa = PBXGroup;
 			children = (
 				0A5E5B2A2302A7E3006836DB /* Problem2 */,
+				0A5E5B422302C9C8006836DB /* Windmill */,
 				0A5E5B292302A7E3006836DB /* Products */,
 			);
 			sourceTree = "<group>";
@@ -44,6 +73,7 @@
 			isa = PBXGroup;
 			children = (
 				0A5E5B282302A7E3006836DB /* Problem2.app */,
+				0A5E5B412302C9C8006836DB /* Windmill */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -56,8 +86,19 @@
 				0A5E5B2F2302A7E5006836DB /* MainMenu.xib */,
 				0A5E5B322302A7E5006836DB /* Info.plist */,
 				0A5E5B332302A7E5006836DB /* Problem2.entitlements */,
+				0A5E5B4823059EC9006836DB /* TextureSource.swift */,
+				0A5E5B4A2305A9C6006836DB /* TextureRenderer.swift */,
+				0A5E5B4C2305E449006836DB /* Shaders.metal */,
 			);
 			path = Problem2;
+			sourceTree = "<group>";
+		};
+		0A5E5B422302C9C8006836DB /* Windmill */ = {
+			isa = PBXGroup;
+			children = (
+				0A5E5B432302C9C8006836DB /* main.swift */,
+			);
+			path = Windmill;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -80,6 +121,23 @@
 			productReference = 0A5E5B282302A7E3006836DB /* Problem2.app */;
 			productType = "com.apple.product-type.application";
 		};
+		0A5E5B402302C9C8006836DB /* Windmill */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0A5E5B452302C9C8006836DB /* Build configuration list for PBXNativeTarget "Windmill" */;
+			buildPhases = (
+				0A5E5B3D2302C9C8006836DB /* Sources */,
+				0A5E5B3E2302C9C8006836DB /* Frameworks */,
+				0A5E5B3F2302C9C8006836DB /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Windmill;
+			productName = Windmill;
+			productReference = 0A5E5B412302C9C8006836DB /* Windmill */;
+			productType = "com.apple.product-type.tool";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -91,6 +149,9 @@
 				ORGANIZATIONNAME = "Felix Naredi";
 				TargetAttributes = {
 					0A5E5B272302A7E3006836DB = {
+						CreatedOnToolsVersion = 10.1;
+					};
+					0A5E5B402302C9C8006836DB = {
 						CreatedOnToolsVersion = 10.1;
 					};
 				};
@@ -109,6 +170,7 @@
 			projectRoot = "";
 			targets = (
 				0A5E5B272302A7E3006836DB /* Problem2 */,
+				0A5E5B402302C9C8006836DB /* Windmill */,
 			);
 		};
 /* End PBXProject section */
@@ -130,7 +192,18 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0A5E5B4D2305E449006836DB /* Shaders.metal in Sources */,
+				0A5E5B4923059EC9006836DB /* TextureSource.swift in Sources */,
 				0A5E5B2C2302A7E3006836DB /* AppDelegate.swift in Sources */,
+				0A5E5B4B2305A9C6006836DB /* TextureRenderer.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		0A5E5B3D2302C9C8006836DB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0A5E5B442302C9C8006836DB /* main.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -299,6 +372,24 @@
 			};
 			name = Release;
 		};
+		0A5E5B462302C9C8006836DB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 4.2;
+			};
+			name = Debug;
+		};
+		0A5E5B472302C9C8006836DB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 4.2;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -316,6 +407,15 @@
 			buildConfigurations = (
 				0A5E5B372302A7E5006836DB /* Debug */,
 				0A5E5B382302A7E5006836DB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		0A5E5B452302C9C8006836DB /* Build configuration list for PBXNativeTarget "Windmill" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0A5E5B462302C9C8006836DB /* Debug */,
+				0A5E5B472302C9C8006836DB /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
