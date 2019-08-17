@@ -189,3 +189,87 @@ struct PolygonTexturePipeline {
     })
   }
 }
+
+struct LinearGradientTexturePipeline {
+  let device: MTLDevice
+  let commandQueue: MTLCommandQueue
+  let pipeline: MTLRenderPipelineState
+
+  init(device: MTLDevice) {
+    self.device = device
+    self.commandQueue = device.makeCommandQueue()!
+
+    let pipelineDescriptor = MTLRenderPipelineDescriptor()
+    let library = device.makeDefaultLibrary()!
+    pipelineDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
+    pipelineDescriptor.vertexFunction = library.makeFunction(
+      name: "LinearGradientTexture__vertex_shader")
+    pipelineDescriptor.fragmentFunction = library.makeFunction(
+      name: "LinearGradientTexture__fragment_shader")
+    self.pipeline = try! device.makeRenderPipelineState(descriptor: pipelineDescriptor)
+  }
+
+  struct Source: TextureSource {
+    let device: MTLDevice
+    let commandQueue: MTLCommandQueue
+    let pipeline: MTLRenderPipelineState
+    let transform: float4x4
+
+    func texture(width: Int, height: Int) -> MTLTexture? {
+      let textureDescriptor = MTLTextureDescriptor.texture2DDescriptor(
+        pixelFormat: .bgra8Unorm,
+        width: width,
+        height: height,
+        mipmapped: false)
+      textureDescriptor.usage = [.shaderRead, .renderTarget]
+
+      // TODO:
+      // Program crashes when renderPassDescriptor is stored within the object. This has not been
+      // an issue before.
+      //
+      // Unsure on what goes wrong. Mostly it just crashes with a bad memory access error. Other
+      // times it complains over memory deallocation. It has also thrown exceptions on the behalf of
+      // a missing selector in the internal side of the render pass descriptor.
+      //
+      // Current solution is to init a new MTLRenderPassDescriptor each time a texture is made.
+      let renderPassDescriptor = MTLRenderPassDescriptor()
+      renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0, 0, 0, 0)
+      renderPassDescriptor.colorAttachments[0].loadAction = .clear
+      renderPassDescriptor.colorAttachments[0].storeAction = .store
+
+      let texture = device.makeTexture(descriptor: textureDescriptor)!
+      renderPassDescriptor.colorAttachments[0].texture = texture
+
+      let commandBuffer = commandQueue.makeCommandBuffer()!
+      let commandEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor)!
+      commandEncoder.setRenderPipelineState(pipeline)
+
+      var transform = self.transform
+      commandEncoder.setVertexBytes(&transform, length: MemoryLayout<float4x4>.size, index: 0)
+
+      commandEncoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: 4)
+
+      commandEncoder.endEncoding()
+      commandBuffer.commit()
+
+      return texture
+    }
+  }
+
+  func makeSource(transform: float4x4) -> Source {
+    return Source(
+      device: device, commandQueue: commandQueue, pipeline: pipeline, transform: transform)
+  }
+
+  func makeSource(offset: simd_float2, radians: Float) -> Source {
+    let (x, y) = (offset.x, offset.y)
+    let (rx, ry) = (cos(radians), sin(radians))
+    return makeSource(
+      transform: float4x4(
+        [rx, -ry, 0, -x],
+        [ry, rx, 0, -y],
+        [0, 0, 1, 0],
+        [0, 0, 0, 1]))
+  }
+
+}

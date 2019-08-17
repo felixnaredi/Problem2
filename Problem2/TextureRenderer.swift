@@ -53,7 +53,7 @@ class TextureRenderer: NSObject, MTKViewDelegate {
       descriptor: view.currentRenderPassDescriptor!)!
     encoder.setRenderPipelineState(pipeline)
     encoder.setFragmentTexture(texture, index: 0)
-    encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 6)
+    encoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: 4)
     encoder.endEncoding()
 
     commandBuffer.present(view.currentDrawable!)

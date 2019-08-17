@@ -689,7 +689,7 @@
                 <rect key="frame" x="0.0" y="0.0" width="480" height="360"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <customView translatesAutoresizingMaskIntoConstraints="NO" id="4f2-uv-YCK" customClass="ClickDrawPolygonView" customModule="Problem2" customModuleProvider="target">
+                    <customView translatesAutoresizingMaskIntoConstraints="NO" id="4f2-uv-YCK" customClass="MTKView">
                         <rect key="frame" x="20" y="11" width="440" height="329"/>
                     </customView>
                 </subviews>

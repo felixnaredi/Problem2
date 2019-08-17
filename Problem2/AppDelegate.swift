@@ -13,7 +13,7 @@ class ClickDrawPolygonView: MTKView {
 
   var pipeline: PolygonTexturePipeline?
   private var vertices = [(simd_float2, simd_float3)]()
-  private var color = simd_float3(0.8, 0.5, 0.3)
+  private var color = simd_float3(0.8, 0.3, 0.2)
 
   private func nextColor() -> simd_float3 { return [color[2], color[0], color[1]] }
 
@@ -59,18 +59,37 @@ class ClickDrawPolygonView: MTKView {
 class AppDelegate: NSObject, NSApplicationDelegate {
 
   @IBOutlet weak var window: NSWindow!
-  @IBOutlet weak var textureView: ClickDrawPolygonView!
+  @IBOutlet weak var textureView: MTKView!
 
   var renderer: TextureRenderer?
+  var pipeline: LinearGradientTexturePipeline?
 
   func applicationDidFinishLaunching(_ aNotification: Notification) {
     let device = MTLCreateSystemDefaultDevice()!
 
     renderer = TextureRenderer(device: device)
+    pipeline = LinearGradientTexturePipeline(device: device)
+
+    Thread(block: {
+      for r in sequence(first: Float(0), next: { ($0 + 0.01).remainder(dividingBy: 2 * Float.pi) })
+      {
+        let c = cos(r)
+        let s = sin(r)
+        let z: Float = 0.1  // abs(c) + 0.5
+
+        self.renderer?.textureSource = self.pipeline?.makeSource(
+          transform:
+            float4x4([c, -s, 0, 0], [s, c, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]) * float4x4(
+            [z, 0, 0, 0], [0, z, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]) * float4x4(
+            [1, 0, 0, 0], [0, 1, 0, s], [0, 0, 1, 0], [0, 0, 0, 1])
+        )
+
+        Thread.sleep(forTimeInterval: 0.016)
+      }
+    }).start()
 
     textureView.delegate = renderer
     textureView.device = device
-    textureView.pipeline = PolygonTexturePipeline(device: device)
   }
 
   func applicationWillTerminate(_ aNotification: Notification) {
