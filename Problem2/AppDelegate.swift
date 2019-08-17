@@ -75,7 +75,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
       {
         let c = cos(r)
         let s = sin(r)
-        let z: Float = 0.1  // abs(c) + 0.5
+        let z: Float = 0.16  // abs(c) + 0.5
 
         self.renderer?.textureSource = self.pipeline?.makeSource(
           transform:
@@ -88,8 +88,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
       }
     }).start()
 
-    textureView.delegate = renderer
     textureView.device = device
+    textureView.delegate = renderer
   }
 
   func applicationWillTerminate(_ aNotification: Notification) {

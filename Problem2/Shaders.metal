@@ -19,28 +19,31 @@ using namespace metal;
 #define MODULE TextureRenderer
 
 namespace MODULE {
-  constant float4 rect_vertices[] = {
+  
+  constant float4 vertices[] = {
     {-1, -1, 0, 1},
     { 1, -1, 0, 1},
     {-1,  1, 0, 1},
     { 1,  1, 0, 1},
   };
   
-  constant float2 rect_text_coords[] = {
+  constant float2 text_coords[] = {
     {0, 1},
     {1, 1},
     {0, 0},
     {1, 0}
   };
-  
+
   struct rasterizer_t {
-    float4 position [[position]];
-    float2 text_coord;
+    
+    const float4 position [[position]];
+    const float2 text_coord;
     
     constexpr rasterizer_t(uint n)
-      : position(rect_vertices[n])
-      , text_coord(rect_text_coords[n])
+      : position(vertices[n])
+      , text_coord(text_coords[n])
     {}
+
   };
 }
 
@@ -110,8 +113,8 @@ fragment
 float4 fragment_shader(rasterizer_t v [[stage_in]])
 { return v.color; }
 
-#undef vertex_shader
 #undef fragment_shader
+#undef vertex_shader
 #undef rasterizer_t
 #undef vertex_t
 #undef MODULE // PolygonTexturePipeline
@@ -125,11 +128,13 @@ float4 fragment_shader(rasterizer_t v [[stage_in]])
 
 namespace MODULE {
   
+#define S 64
+  
   constant float4 vertices[] = {
-    { 32,  0,  0.5, 1},
-    { 0,  32,  1.0, 1},
-    { 0, -32,  0.0, 1},
-    {-32,  0,  0.5, 1}
+    { S,  0, 0.5, 1},
+    { 0,  S, 1.0, 1},
+    { 0, -S, 0.0, 1},
+    {-S,  0, 0.5, 1}
   };
   
   struct rasterizer_t
@@ -140,8 +145,10 @@ namespace MODULE {
       : position(vertices[n] * transform)
     {}
     
-    float delta() const { return (position.z - 0.5) * 64; }
+    float delta() const { return (position.z - 0.5) * (2 * S); }
   };
+  
+#undef S
   
   constexpr float min(float a, float b) { return a < b ? a : b; }
   constexpr float sgn(float a) { return a < 0 ? -1 : 1; }
@@ -159,8 +166,9 @@ namespace MODULE {
   ///   lim(t -> 0)     f(t) = {1, 1, 1, 1}
   ///   lim(t -> inf-.) f(t) = negcolor
   ///
-  /// The colors to not blend as `t` approaches zero. Instead the graf gets closer to white. The
-  /// white area are the signature "peek" if the function.
+  /// The colors for positive and negative values of `t` to not blend as `t` approaches zero.
+  /// Instead the graf gets closer to white. The white area is the signature "peek" of the
+  /// function.
   ///
   /// - Parameter negcolor: The color the graph approximates as `t` goes towards negative infinity.
   /// - Parameter poscolor: The color the graph approximates as `t` goes towards positive infinity.
@@ -169,10 +177,48 @@ namespace MODULE {
   /// - Returns: A color on the graf.
   float4 smooth_peek_graph(float4 negcolor, float4 poscolor, float peek_slope, float t)
   {
-    const float y(min(64, 1 / (peek_slope * (t * t))));
-    const auto u = (negcolor + poscolor) / 2;
-    const auto k = u - negcolor;
-    return (y + u + sgn(t) * k) / (y + 1);
+    // Cropping the maximum value of z since if no upper bound is used the texture starts to
+    // flicker close to t = 0 because of Nan. values.
+    const float z(min(1024, 1 / (peek_slope * t * t)));
+    const auto h(t < 0 ? negcolor : poscolor);
+    return (z + h) / (z + 1);
+    
+    /// The math:
+    ///
+    /// The general shape of the graph can be visualized by plotting the curve of w where:
+    ///
+    ///   z = 1 / x^(2n)              n is a positive integer.
+    ///   w = z / (z + 1)
+    ///
+    /// Let A be the value the graph should approach as x goes towards infinity and B the value it
+    /// should approach as x goes towards negative infinity.
+    ///
+    /// Then using a function h(x) that are equal to A when x >= 0 and B when x < 0 its possible
+    /// to fullfill the invariant above by simply adding w and h together.
+    ///
+    ///    lim (x -> inf.) (w + h(x)) =
+    ///      0 + lim (x -> inf.) h(x) = A
+    ///
+    ///   lim (x -> inf-.) (w + h(x)) =
+    ///     0 + lim (x -> inf-.) h(x) = B
+    ///
+    ///   Note: lim (x -> inf.) z = lim (x -> inf.) (1 / x^(2n)) = 0
+    ///         lim (x -> inf.) w = lim (x -> inf.) (z / (z + 1)) = 0 / 1 = 0
+    ///
+    /// The problem by doing that is that there will be points close to x = 0 where the graph
+    /// is greater than 1 (trying to stay in the bound [0, 1] as much as possible). However, since
+    /// z is approaching infinity as x gets closer to 0 its possible to neglect the effect of the
+    /// addition from h close to zero by rearanging the graph to:
+    ///
+    ///   y = (z + h(x)) / (z + 1)
+    ///
+    /// Lets see what happens in y when x approaches 0:
+    ///
+    ///                         lim (x -> 0) y =
+    ///   lim (x -> 0) ((z + h(x)) / (z + 1))) =
+    ///                   lim (x -> 0) (z / z) = 1
+    ///
+    /// Pretty solid!
   }
 }
 
@@ -189,10 +235,11 @@ rasterizer_t vertex_shader(uint vid [[vertex_id]], constant float4x4& transform 
 
 fragment
 float4 fragment_shader(rasterizer_t in [[stage_in]])
-{ return MODULE::smooth_peek_graph({0.2, 0.3, 0.8, 1}, {0.8, 0.4, 0.1, 1}, 128, in.delta()); }
+// { return MODULE::smooth_peek_graph({0.2, 0.3, 0.8, 1}, {0.8, 0.4, 0.1, 1}, 128, in.delta()); }
+{ return MODULE::smooth_peek_graph({1, 0, 0, 1}, {0, 1, 0, 1}, 28, in.delta()); }
 
 
-#undef vertex_shader
 #undef fragment_shader
+#undef vertex_shader
 #undef rasterizer_t
 #undef MODULE // LinearGradientTexture
