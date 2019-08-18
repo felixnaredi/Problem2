@@ -190,23 +190,23 @@ struct PolygonTexturePipeline {
   }
 }
 
-struct LinearGradientTexturePipeline {
+struct LinearGradientTexturePipeline<FragmentShaderDeamon: ShaderDaemonProtocol> {
   let device: MTLDevice
   let commandQueue: MTLCommandQueue
   let pipeline: MTLRenderPipelineState
+  let fragmentShaderDeamon: FragmentShaderDeamon
 
-  init(device: MTLDevice) {
+  init(device: MTLDevice, fragmentShaderDeamon: FragmentShaderDeamon) {
     self.device = device
     self.commandQueue = device.makeCommandQueue()!
 
     let pipelineDescriptor = MTLRenderPipelineDescriptor()
-    let library = device.makeDefaultLibrary()!
     pipelineDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
-    pipelineDescriptor.vertexFunction = library.makeFunction(
+    pipelineDescriptor.vertexFunction = device.makeDefaultLibrary()!.makeFunction(
       name: "LinearGradientTexture__vertex_shader")
-    pipelineDescriptor.fragmentFunction = library.makeFunction(
-      name: "LinearGradientTexture__fragment_shader")
+    pipelineDescriptor.fragmentFunction = fragmentShaderDeamon.makeFunction(device: device)
     self.pipeline = try! device.makeRenderPipelineState(descriptor: pipelineDescriptor)
+    self.fragmentShaderDeamon = fragmentShaderDeamon
   }
 
   struct Source: TextureSource {
@@ -214,6 +214,8 @@ struct LinearGradientTexturePipeline {
     let commandQueue: MTLCommandQueue
     let pipeline: MTLRenderPipelineState
     let transform: float4x4
+    let fragmentShaderDeamon: FragmentShaderDeamon
+    let fragmentData: FragmentShaderDeamon.EncoderData
 
     func texture(width: Int, height: Int) -> MTLTexture? {
       let textureDescriptor = MTLTextureDescriptor.texture2DDescriptor(
@@ -247,6 +249,8 @@ struct LinearGradientTexturePipeline {
       var transform = self.transform
       commandEncoder.setVertexBytes(&transform, length: MemoryLayout<float4x4>.size, index: 0)
 
+      fragmentShaderDeamon.encode(with: commandEncoder, data: fragmentData)
+
       commandEncoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: 4)
 
       commandEncoder.endEncoding()
@@ -256,20 +260,13 @@ struct LinearGradientTexturePipeline {
     }
   }
 
-  func makeSource(transform: float4x4) -> Source {
+  func makeTextureSource(
+    transformMatrix: simd_float4x4,
+    fragmentData: FragmentShaderDeamon.EncoderData
+  ) -> Source {
     return Source(
-      device: device, commandQueue: commandQueue, pipeline: pipeline, transform: transform)
-  }
-
-  func makeSource(offset: simd_float2, radians: Float) -> Source {
-    let (x, y) = (offset.x, offset.y)
-    let (rx, ry) = (cos(radians), sin(radians))
-    return makeSource(
-      transform: float4x4(
-        [rx, -ry, 0, -x],
-        [ry, rx, 0, -y],
-        [0, 0, 1, 0],
-        [0, 0, 0, 1]))
+      device: device, commandQueue: commandQueue, pipeline: pipeline, transform: transformMatrix,
+      fragmentShaderDeamon: fragmentShaderDeamon, fragmentData: fragmentData)
   }
 
 }

@@ -62,27 +62,31 @@ class AppDelegate: NSObject, NSApplicationDelegate {
   @IBOutlet weak var textureView: MTKView!
 
   var renderer: TextureRenderer?
-  var pipeline: LinearGradientTexturePipeline?
+  var pipeline: LinearGradientTexturePipeline<PeekGraphFragmentShaderDeamon>?
 
   func applicationDidFinishLaunching(_ aNotification: Notification) {
     let device = MTLCreateSystemDefaultDevice()!
 
     renderer = TextureRenderer(device: device)
-    pipeline = LinearGradientTexturePipeline(device: device)
+    pipeline = LinearGradientTexturePipeline(
+      device: device, fragmentShaderDeamon: PeekGraphFragmentShaderDeamon())
 
     Thread(block: {
-      for r in sequence(first: Float(0), next: { ($0 + 0.01).remainder(dividingBy: 2 * Float.pi) })
+      for r in sequence(first: Float(0), next: { ($0 + 0.007).remainder(dividingBy: 2 * Float.pi) })
       {
         let c = cos(r)
         let s = sin(r)
-        let z: Float = 0.16  // abs(c) + 0.5
+        // let z: Float = 0.16  // abs(c) + 0.5
 
-        self.renderer?.textureSource = self.pipeline?.makeSource(
-          transform:
-            float4x4([c, -s, 0, 0], [s, c, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]) * float4x4(
-            [z, 0, 0, 0], [0, z, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]) * float4x4(
-            [1, 0, 0, 0], [0, 1, 0, s], [0, 0, 1, 0], [0, 0, 0, 1])
-        )
+        self.renderer?.textureSource = self.pipeline?.makeTextureSource(
+          transformMatrix:
+            simd_float4x4([c, -s, 0, 0], [s, c, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]) * simd_float4x4(
+            [0.5, 0, 0, 0], [0, 0.5, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]) * simd_float4x4(
+            [1, 0, 0, s * 0.5], [0, 1, 0, c * 0.4], [0, 0, 1, 0], [0, 0, 0, 1]),
+          fragmentData: PeekGraphFragmentShaderDeamon.makeBuffer(
+            device: device, negativeColor: [abs(c) * 0.7, max(0, s) * 0.7, 0.1, 1],
+            positiveColor: [max(0, s) * 0.7, abs(s) * 0.7, 0.1, 1],
+            peekColor: [0.2, 0.1, 0.91, 0], slope: [12, 208, 14, 1]))
 
         Thread.sleep(forTimeInterval: 0.016)
       }

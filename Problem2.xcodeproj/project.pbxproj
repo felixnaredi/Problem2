@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0A36FBC523097BB00004C993 /* ShaderDeamon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A36FBC423097BB00004C993 /* ShaderDeamon.swift */; };
 		0A5E5B2C2302A7E3006836DB /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A5E5B2B2302A7E3006836DB /* AppDelegate.swift */; };
 		0A5E5B2E2302A7E5006836DB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0A5E5B2D2302A7E5006836DB /* Assets.xcassets */; };
 		0A5E5B312302A7E5006836DB /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0A5E5B2F2302A7E5006836DB /* MainMenu.xib */; };
@@ -29,6 +30,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0A36FBC423097BB00004C993 /* ShaderDeamon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShaderDeamon.swift; sourceTree = "<group>"; };
 		0A5E5B282302A7E3006836DB /* Problem2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Problem2.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0A5E5B2B2302A7E3006836DB /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		0A5E5B2D2302A7E5006836DB /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -82,13 +84,14 @@
 			isa = PBXGroup;
 			children = (
 				0A5E5B2B2302A7E3006836DB /* AppDelegate.swift */,
+				0A36FBC423097BB00004C993 /* ShaderDeamon.swift */,
+				0A5E5B4A2305A9C6006836DB /* TextureRenderer.swift */,
+				0A5E5B4823059EC9006836DB /* TextureSource.swift */,
+				0A5E5B4C2305E449006836DB /* Shaders.metal */,
 				0A5E5B2D2302A7E5006836DB /* Assets.xcassets */,
 				0A5E5B2F2302A7E5006836DB /* MainMenu.xib */,
 				0A5E5B322302A7E5006836DB /* Info.plist */,
 				0A5E5B332302A7E5006836DB /* Problem2.entitlements */,
-				0A5E5B4823059EC9006836DB /* TextureSource.swift */,
-				0A5E5B4A2305A9C6006836DB /* TextureRenderer.swift */,
-				0A5E5B4C2305E449006836DB /* Shaders.metal */,
 			);
 			path = Problem2;
 			sourceTree = "<group>";
@@ -193,6 +196,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0A5E5B4D2305E449006836DB /* Shaders.metal in Sources */,
+				0A36FBC523097BB00004C993 /* ShaderDeamon.swift in Sources */,
 				0A5E5B4923059EC9006836DB /* TextureSource.swift in Sources */,
 				0A5E5B2C2302A7E3006836DB /* AppDelegate.swift in Sources */,
 				0A5E5B4B2305A9C6006836DB /* TextureRenderer.swift in Sources */,

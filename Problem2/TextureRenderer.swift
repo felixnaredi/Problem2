@@ -21,7 +21,13 @@ fileprivate func makePipeline(device: MTLDevice) -> MTLRenderPipelineState? {
 }
 
 class TextureRenderer: NSObject, MTKViewDelegate {
-  var textureSource: TextureSource?
+  private var textureSourceLock = DispatchSemaphore(value: 1)
+
+  var textureSource: TextureSource? {
+    willSet { textureSourceLock.wait() }
+    didSet { textureSourceLock.signal() }
+  }
+
   private let commandQueue: MTLCommandQueue!
   private let pipeline: MTLRenderPipelineState!
 
@@ -45,8 +51,17 @@ class TextureRenderer: NSObject, MTKViewDelegate {
   func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {}
 
   func draw(in view: MTKView) {
+    guard let textureSource = textureSource else { return }
+
     let (viewWidth, viewHeight) = (Int(view.frame.width), Int(view.frame.height))
-    guard let texture = textureSource?.texture(width: viewWidth, height: viewHeight) else { return }
+    if viewWidth < 1 || viewHeight < 1 { return }
+
+    textureSourceLock.wait()
+    guard let texture = textureSource.texture(width: viewWidth, height: viewHeight) else {
+      textureSourceLock.signal()
+      return
+    }
+    textureSourceLock.signal()
 
     let commandBuffer = commandQueue.makeCommandBuffer()!
     let encoder = commandBuffer.makeRenderCommandEncoder(
